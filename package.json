@@ -1,0 +1,26 @@
+{
+  "name": "scan-llen",
+  "version": "0.1.4",
+  "description": "Containerized utility to scan and print llen of Redis keys.",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint --cache src",
+    "start": "node --harmony lib/index.js"
+  },
+  "author": "@evanxsummers",
+  "license": "ISC",
+  "dependencies": {
+    "redis-app-rpf": "^0.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.12.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanx/scan-llen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/evanx/scan-llen/issues"
+  },
+  "homepage": "https://github.com/evanx/scan-llen#readme"
+}
