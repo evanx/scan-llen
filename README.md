@@ -50,24 +50,14 @@ Builds:
 - isolated Redis instance named `scan-llen-redis`
 - this utility `evanx/scan-llen`
 
-First we create the isolated network:
-```shell
-docker network create -d bridge scan-llen-network
+We populate our test keys:
 ```
-
-Then the Redis container on that network:
+populate() {
+  redis-cli -h $redisHost lpush list1 1 | grep -q '^1$'
+  redis-cli -h $redisHost lpush list2 1 | grep -q '^1$'
+  redis-cli -h $redisHost lpush list2 2 | grep -q '^2$'
+}
 ```
-redisContainer=`docker run --network=scan-llen-network \
-    --name $redisName -d redis`
-redisHost=`docker inspect $redisContainer |
-    grep '"IPAddress":' | tail -1 | sed 's/.*"\([0-9\.]*\)",/\1/'`
-```
-where we parse its IP number into `redisHost`
-
-We setup our test keys:
-```
-```
-where the will expire keys `user:*` and then should only have the `group:evanxsummers` remaining.
 
 We build a container image for this service:
 ```
@@ -81,10 +71,6 @@ docker run --name scan-llen-instance --rm -i \
   -e host=$redisHost \
   -e pattern='*' \
   scan-llen
-```
-```
-evan@dijkstra:~/scan-llen$ sh test/demo.sh
-...
 ```
 
 ## Implementation
