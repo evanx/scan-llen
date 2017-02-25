@@ -46,8 +46,6 @@ main() {
     build
     run | grep '^1 list1$'
     run | grep '^2 list2$'
-    sleep 1
-    test
     tearDown
     echo 'OK'
 }
