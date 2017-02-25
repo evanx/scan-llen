@@ -1,5 +1,5 @@
 
-name='scan-expire'
+name='scan-llen'
 network="$name-network"
 redisName="$name-redis"
 
@@ -25,8 +25,8 @@ removeNetwork() {
   removeNetwork
   set -u -e -x
   sleep 1
-  docker network create -d bridge scan-expire-network
-  redisContainer=`docker run --network=scan-expire-network \
+  docker network create -d bridge scan-llen-network
+  redisContainer=`docker run --network=scan-llen-network \
       --name $redisName -d redis`
   redisHost=`docker inspect $redisContainer |
       grep '"IPAddress":' | tail -1 | sed 's/.*"\([0-9\.]*\)",/\1/'`
@@ -35,13 +35,12 @@ removeNetwork() {
   redis-cli -h $redisHost lpush list2 1
   redis-cli -h $redisHost lpush list2 2
   redis-cli -h $redisHost keys '*'
-  docker build -t scan-expire https://github.com/evanx/scan-expire.git
-  docker run --name scan-expire-instance --rm -i \
-    --network=scan-expire-network \
+  docker build -t scan-llen https://github.com/evanx/scan-llen.git
+  docker run --name scan-llen-instance --rm -i \
+    --network=scan-llen-network \
     -e host=$redisHost \
-    -e pattern='user:*' \
-    -e ttl=1 \
-    scan-expire
+    -e pattern='list*' \
+    scan-lleb
   sleep 2
   redis-cli -h $redisHost keys '*'
   docker rm -f $redisName
