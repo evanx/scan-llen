@@ -43,7 +43,7 @@ test() {
   redis-cli -h $redisHost keys '*'
 }
 
-run() {
+main() {
     tearDown
     setUp
     sleep 1
@@ -55,4 +55,4 @@ run() {
     tearDown
 }
 
-run
+main
