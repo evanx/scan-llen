@@ -6,7 +6,13 @@ Containerized utility to scan and print llen of Redis keys.
 
 ## Use case
 
-We wish to expire a set of keys in Redis matching some pattern.
+We wish to scan keys in Redis using a specified pattern, and print the lengths of the list keys.
+
+```
+$ docker run -i --rm -e pattern='*' --network=host scan-llen
+12 list1
+5 list2
+```
 
 ## Config
 
@@ -43,7 +49,7 @@ You can build as follows:
 docker build -t scan-llen https://github.com/evanx/scan-llen.git
 ```
 
-See `test/demo.sh` https://github.com/evanx/scan-llen/blob/master/test/demo.sh
+See `bin/test.sh` https://github.com/evanx/scan-llen/blob/master/bin/test.sh
 
 Builds:
 - isolated network `scan-llen-network`
