@@ -21,10 +21,9 @@ setUp() {
 }
 
 populate() {
-  redis-cli -h $redisHost lpush list1 1
-  redis-cli -h $redisHost lpush list2 1
-  redis-cli -h $redisHost lpush list2 2
-  redis-cli -h $redisHost keys '*'
+  redis-cli -h $redisHost lpush list1 1 | grep -q '^1$'
+  redis-cli -h $redisHost lpush list2 1 | grep -q '^1$'
+  redis-cli -h $redisHost lpush list2 2 | grep -q '^2$'
 }
 
 build() {
@@ -39,20 +38,18 @@ run() {
     scan-llen
 }
 
-test() {
-  redis-cli -h $redisHost keys '*'
-}
-
 main() {
     tearDown
     setUp
     sleep 1
     populate
     build
-    run
+    run | grep '^1 list1$'
+    run | grep '^2 list2$'
     sleep 1
     test
     tearDown
+    echo 'OK'
 }
 
 main
