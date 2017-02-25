@@ -9,7 +9,7 @@ redisName="$name-redis"
 
 tearDown() {
   docker-rm $redisName
-  docker-rm-network $network
+  docker-network-rm $network
 }
 
 setUp() {
