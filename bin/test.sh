@@ -7,20 +7,6 @@ name='scan-llen'
 network="$name-network"
 redisName="$name-redis"
 
-run
-
-run() {
-    tearDown
-    setUp
-    sleep 1
-    populate
-    build
-    run
-    sleep 1
-    test
-    tearDown
-}
-
 tearDown() {
   remove-containers $redisName
   remove-network $network
@@ -56,3 +42,17 @@ run() {
 test() {
   redis-cli -h $redisHost keys '*'
 }
+
+run() {
+    tearDown
+    setUp
+    sleep 1
+    populate
+    build
+    run
+    sleep 1
+    test
+    tearDown
+}
+
+run
