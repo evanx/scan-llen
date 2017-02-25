@@ -8,8 +8,8 @@ network="$name-network"
 redisName="$name-redis"
 
 tearDown() {
-  remove-containers $redisName
-  remove-network $network
+  docker-rm $redisName
+  docker-rm-network $network
 }
 
 setUp() {
