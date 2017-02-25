@@ -1,6 +1,6 @@
 {
   "name": "scan-llen",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Containerized utility to scan and print llen of Redis lists.",
   "main": "lib/index.js",
   "scripts": {
