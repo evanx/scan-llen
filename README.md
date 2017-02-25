@@ -13,19 +13,14 @@ We wish to expire a set of keys in Redis matching some pattern.
 See `lib/config.js`
 ```javascript
 module.exports = {
-    description: 'Containerized utility to scan Redis keys and expire all matching keys.',
+    description: 'Containerized utility to scan and print llen of Redis keys.',
     required: {
         pattern: {
             description: 'the matching pattern for Redis scan',
             example: '*'
         },
-        ttl: {
-            description: 'the TTL expiry to set on archived keys',
-            unit: 'seconds',
-            example: 60
-        },
         limit: {
-            description: 'the maximum number of keys to expire',
+            description: 'the maximum number of keys to print',
             default: 10,
             note: 'zero means unlimited'
         },
@@ -69,11 +64,8 @@ redisHost=`docker inspect $redisContainer |
 ```
 where we parse its IP number into `redisHost`
 
-We set our test keys:
+We setup our test keys:
 ```
-redis-cli -h $redisHost set user:evanxsummers '{"twitter": "@evanxsummers"}'
-redis-cli -h $redisHost set user:other '{"twitter": "@evanxsummers"}'
-redis-cli -h $redisHost set group:evanxsummers '["evanxsummers"]'
 ```
 where the will expire keys `user:*` and then should only have the `group:evanxsummers` remaining.
 
@@ -87,23 +79,13 @@ We interactively run the service on our test Redis container:
 docker run --name scan-llen-instance --rm -i \
   --network=scan-llen-network \
   -e host=$redisHost \
-  -e pattern='user:*' \
-  -e ttl=1 \
+  -e pattern='*' \
   scan-llen
-sleep 2
 ```
-where since the `ttl` is 1 second, we sleep for 2 seconds before checking the keys.
 ```
 evan@dijkstra:~/scan-llen$ sh test/demo.sh
 ...
-1 user:evanxsummers
-1 user:other
-...
-+ redis-cli -h $redisHost keys '*'
-1) "group:evanxsummers"
 ```
-where we expired keys `user:*` and so indeed only have `group:evanxsummers` remaining.
-
 
 ## Implementation
 
@@ -117,17 +99,24 @@ See `lib/main.js`
         });
         cursor = parseInt(result[0]);
         const keys = result[1];
-        count += keys.length;
-        if (config.limit > 0 && count > config.limit) {
-            console.error(clc.yellow('Limit reached. Try: limit=0'));
-            break;
+        const types = await multiExecAsync(client, multi => {
+            keys.forEach(key => multi.type(key));
+        });
+        const listKeys = keys.filter((key, index) => types[index] === 'list');
+        if (listKeys.length) {
+            count += listKeys.length;
+            const results = await multiExecAsync(client, multi => {
+                listKeys.forEach(key => multi.llen(key));
+            });
+            listKeys.forEach((key, index) => {
+                const result = results[index];
+                console.log(key, result);
+            });
+            if (config.limit > 0 && count > config.limit) {
+                console.error(clc.yellow('Limit exceeded. Try: limit=0'));
+                break;
+            }
         }
-        const results = await multiExecAsync(client, multi => {
-            keys.forEach(key => multi.expire(key, config.ttl));
-        });
-        results.forEach((result, index) => {
-            console.log(clc.green(result), keys[index]);
-        });
         if (cursor === 0) {
             break;
         }

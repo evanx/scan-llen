@@ -31,9 +31,9 @@ removeNetwork() {
   redisHost=`docker inspect $redisContainer |
       grep '"IPAddress":' | tail -1 | sed 's/.*"\([0-9\.]*\)",/\1/'`
   sleep 1
-  redis-cli -h $redisHost set user:evanxsummers '{"twitter": "@evanxsummers"}'
-  redis-cli -h $redisHost set user:other '{"twitter": "@evanxsummers"}'
-  redis-cli -h $redisHost set group:evanxsummers '["evanxsummers"]'
+  redis-cli -h $redisHost lpush list1 1
+  redis-cli -h $redisHost lpush list2 1
+  redis-cli -h $redisHost lpush list2 2
   redis-cli -h $redisHost keys '*'
   docker build -t scan-expire https://github.com/evanx/scan-expire.git
   docker run --name scan-expire-instance --rm -i \
